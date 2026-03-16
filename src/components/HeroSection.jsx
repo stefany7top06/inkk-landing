@@ -19,7 +19,6 @@ export default function HeroSection() {
   const sectionRef = useRef(null)
   const videoRef = useRef(null)
   const overlayRef = useRef(null)
-  const textRef = useRef(null)
   const scrollIndicatorRef = useRef(null)
   const lastVideoUpdate = useRef(0)
   const [videoReady, setVideoReady] = useState(false)
@@ -36,7 +35,6 @@ export default function HeroSection() {
     video.addEventListener('loadeddata', onLoaded)
 
     const ctx = gsap.context(() => {
-      // scrub: 1 = GSAP lerps progress over 1s → far fewer seeks, no instant jumps
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: 'top top',
@@ -46,7 +44,7 @@ export default function HeroSection() {
         onUpdate: (self) => {
           const progress = self.progress
 
-          // Throttle video seek to ~30fps to avoid stutter
+          // Throttle video seek to ~30fps
           const now = performance.now()
           if (video.readyState >= 2 && video.duration && now - lastVideoUpdate.current > 33) {
             video.currentTime = progress * video.duration
@@ -56,34 +54,18 @@ export default function HeroSection() {
           // Background color interpolation
           const bgColor = interpolateColor('#657F5B', '#3C5322', progress)
           document.body.style.backgroundColor = bgColor
-          if (sectionRef.current) {
-            sectionRef.current.style.backgroundColor = bgColor
-          }
+          if (sectionRef.current) sectionRef.current.style.backgroundColor = bgColor
 
-          // Title: visible 0→0.55, fades out 0.55→0.80
+          // Overlay: visible 0→0.6, fades out 0.6→0.85
           if (overlayRef.current) {
-            const op = progress < 0.55 ? 1 : progress < 0.80 ? 1 - (progress - 0.55) / 0.25 : 0
+            const op = progress < 0.6 ? 1 : progress < 0.85 ? 1 - (progress - 0.6) / 0.25 : 0
             overlayRef.current.style.opacity = op
-          }
-
-          // Gentle parallax (no translateZ — avoids layout issues)
-          if (textRef.current) {
-            textRef.current.style.transform = `translateY(${progress * -40}px)`
           }
 
           if (scrollIndicatorRef.current) {
             scrollIndicatorRef.current.style.opacity = progress > 0.05 ? 0 : 1
           }
         }
-      })
-
-      // Entrance animation
-      gsap.from(textRef.current, {
-        y: 60,
-        opacity: 0,
-        duration: 1.4,
-        ease: 'power3.out',
-        delay: 0.4,
       })
     }, sectionRef)
 
@@ -120,9 +102,9 @@ export default function HeroSection() {
         ref={overlayRef}
         className="absolute inset-0 flex items-center justify-center z-10"
       >
-        <div ref={textRef} className="text-center px-4 sm:px-6 md:px-8 w-full max-w-4xl mx-auto">
+        <div className="text-center px-4 sm:px-6 md:px-8 w-full max-w-4xl mx-auto" style={{ animation: 'heroFadeUp 1s ease 0.2s both' }}>
           {/* Backdrop card keeps text legible over any image */}
-          <div className="inline-block w-full bg-black/40 backdrop-blur-md rounded-3xl px-6 py-10 sm:px-10 sm:py-12 shadow-2xl border border-white/10">
+          <div className="block w-full bg-black/50 backdrop-blur-md rounded-3xl px-6 py-10 sm:px-10 sm:py-12 shadow-2xl border border-white/10">
             {/* Brand badge */}
             <div className="mb-5">
               <span className="inline-block px-4 py-2 text-xs sm:text-sm tracking-[0.3em] uppercase border border-white/40 rounded-full backdrop-blur-sm bg-white/10 text-white font-[var(--font-body)]">
