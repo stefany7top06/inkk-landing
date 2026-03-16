@@ -44,9 +44,9 @@ export default function HeroSection() {
         onUpdate: (self) => {
           const progress = self.progress
 
-          // Throttle video seek to ~30fps
+          // Throttle video seek to ~60fps
           const now = performance.now()
-          if (video.readyState >= 2 && video.duration && now - lastVideoUpdate.current > 33) {
+          if (video.readyState >= 2 && video.duration && now - lastVideoUpdate.current > 16) {
             video.currentTime = progress * video.duration
             lastVideoUpdate.current = now
           }
